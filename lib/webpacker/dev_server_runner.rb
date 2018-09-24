@@ -8,7 +8,7 @@ module Webpacker
   class DevServerRunner < Webpacker::Runner
     def run
       load_config
-      detect_port!
+      detect_server!
       execute_cmd
     end
 
@@ -26,6 +26,7 @@ module Webpacker
 
         @hostname          = dev_server.host
         @port              = dev_server.port
+        @socket            = dev_server.socket
         @pretty            = dev_server.pretty?
 
       rescue Errno::ENOENT, NoMethodError
@@ -34,9 +35,16 @@ module Webpacker
         exit!
       end
 
-      def detect_port!
-        server = TCPServer.new(@hostname, @port)
-        server.close
+      def detect_server!
+        if @socket
+          if File.exist?(@socket) && File.socket?(@socket)
+            $stdout.puts "Another program is running on #{@socket}. Set a new socket in #{@config_file} for dev_server"
+            exit!
+          end
+        else
+          server = TCPServer.new(@hostname, @port)
+          server.close
+        end
 
       rescue Errno::EADDRINUSE
         $stdout.puts "Another program is running on port #{@port}. Set a new port in #{@config_file} for dev_server"

@@ -27,6 +27,7 @@ module.exports = class extends Base {
         disableHostCheck: devServer.disable_host_check,
         host: devServer.host,
         port: devServer.port,
+        socket: devServer.socket,
         https: devServer.https,
         hot: devServer.hmr,
         contentBase,
